@@ -7,13 +7,31 @@ export enum AppStep {
   QUIZ = 'QUIZ',
   MATCHING = 'MATCHING',
   MATCHED = 'MATCHED',
-  ADVICE = 'ADVICE'
+  ADVICE = 'ADVICE',
+  TAROT = 'TAROT'
 }
 
 export interface Question {
   id: number;
-  text: string;
-  options: string[];
+  section: string;
+  type: 'text' | 'number' | 'single' | 'multiple';
+  text: {
+    en: string;
+    vi: string;
+  };
+  placeholder?: {
+    en: string;
+    vi: string;
+  };
+  options?: {
+    value: string;
+    label: {
+      en: string;
+      vi: string;
+    };
+  }[];
+  maxOptions?: number; // For multiple choice
+  required?: boolean;
 }
 
 export interface MatchProfile {
@@ -27,6 +45,6 @@ export interface MatchProfile {
 export interface UserState {
   name: string;
   hasMatched: boolean;
-  quizAnswers: Record<number, string>;
+  quizAnswers: Record<number, string | string[]>;
   match?: MatchProfile;
 }

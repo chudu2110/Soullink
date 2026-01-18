@@ -1,9 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { Sparkles, Briefcase, Star, ArrowRight } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface BrandAdviceProps {
     onBack: () => void;
+    onTarotSelect: () => void;
 }
 
 interface FlipCardProps {
@@ -15,9 +16,10 @@ interface FlipCardProps {
     value: string;
     glowColor?: 'yellow' | 'green' | 'purple' | 'blue';
     bgColor?: 'white' | 'black';
+    onEnter: () => void;
 }
 
-const FlipCard: React.FC<FlipCardProps> = ({ title, description, icon, suit, color, value, glowColor = 'yellow', bgColor = 'white' }) => {
+const FlipCard: React.FC<FlipCardProps> = ({ title, description, icon, suit, color, value, glowColor = 'yellow', bgColor = 'white', onEnter }) => {
     const [isFlipped, setIsFlipped] = useState(false);
 
     const getGlowStyles = () => {
@@ -95,7 +97,13 @@ const FlipCard: React.FC<FlipCardProps> = ({ title, description, icon, suit, col
                         {description}
                     </p>
 
-                    <button className="flex items-center gap-2 text-pink-500 font-bold uppercase text-sm tracking-wider hover:gap-4 transition-all">
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onEnter();
+                        }}
+                        className="flex items-center gap-2 text-pink-500 font-bold uppercase text-sm tracking-wider hover:gap-4 transition-all"
+                    >
                         Enter <ArrowRight size={16} />
                     </button>
                 </div>
@@ -113,7 +121,8 @@ interface CardConfig {
     bgColor: 'white' | 'black';
 }
 
-export const BrandAdvice: React.FC<BrandAdviceProps> = ({ onBack }) => {
+export const BrandAdvice: React.FC<BrandAdviceProps> = ({ onBack, onTarotSelect }) => {
+    const { t } = useLanguage();
     const [randomCards, setRandomCards] = useState<CardConfig[]>([
         { suit: 'spades', color: 'black', bgColor: 'white' },
         { suit: 'diamonds', color: 'red', bgColor: 'white' },
@@ -128,7 +137,7 @@ export const BrandAdvice: React.FC<BrandAdviceProps> = ({ onBack }) => {
         const shuffledSuits = [...suits].sort(() => Math.random() - 0.5);
 
         const newCards = [0, 1, 2].map((index) => {
-            const randomSuit = shuffledSuits[index]; // Use shuffled unique suits
+            const randomSuit = shuffledSuits[index];
             const color = getSuitColor(randomSuit);
             const bgColor = Math.random() > 0.5 ? 'black' : 'white';
 
@@ -139,50 +148,51 @@ export const BrandAdvice: React.FC<BrandAdviceProps> = ({ onBack }) => {
             };
         });
 
-        // Inverse color logic previously discussed is implicitly covered by random unique shuffling 
-        // which guarantees changing states effectively on reload.
         setRandomCards(newCards);
     }, []);
     return (
-        <div className="flex flex-col gap-8 w-full">
+        <div className="flex flex-col gap-8 w-full animate-in fade-in slide-in-from-bottom-4 duration-700">
             <div className="flex items-center gap-4">
-                <h2 className="text-3xl font-black text-slate-800 tracking-tight">Mystical Advice</h2>
+                <h2 className="text-3xl font-black text-slate-800 tracking-tight">{t('advice.title')}</h2>
             </div>
 
             <p className="text-lg text-slate-600 max-w-2xl">
-                Consult the universe. Reveal your path. Choose a card to unlock ancient wisdom tailored for your modern soul.
+                {t('advice.subtitle')}
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
                 <FlipCard
-                    title="Tarot for Today"
-                    description="Draw a daily card to guide your energy and focus. Discover what the universe has in store for you right now."
+                    title={t('advice.card1Title')}
+                    description={t('advice.card1Desc')}
                     icon={<Sparkles size={32} />}
                     suit={randomCards[0].suit}
                     color={randomCards[0].color}
                     value="J"
                     glowColor="blue"
                     bgColor={randomCards[0].bgColor}
+                    onEnter={onTarotSelect}
                 />
                 <FlipCard
-                    title="Career Guidance"
-                    description="Unsure about your professional path? Let the cards illuminate your strengths and upcoming opportunities."
+                    title={t('advice.card2Title')}
+                    description={t('advice.card2Desc')}
                     icon={<Briefcase size={32} />}
                     suit={randomCards[1].suit}
                     color={randomCards[1].color}
                     value="Q"
                     glowColor="green"
                     bgColor={randomCards[1].bgColor}
+                    onEnter={onTarotSelect}
                 />
                 <FlipCard
-                    title="Fortune Telling"
-                    description="Peer into the crystal ball. Get a glimpse of your destiny and the surprises waiting around the corner."
+                    title={t('advice.card3Title')}
+                    description={t('advice.card3Desc')}
                     icon={<Star size={32} />}
                     suit={randomCards[2].suit}
                     color={randomCards[2].color}
                     value="K"
                     glowColor="purple"
                     bgColor={randomCards[2].bgColor}
+                    onEnter={onTarotSelect}
                 />
             </div>
 

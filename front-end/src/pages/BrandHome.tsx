@@ -1,30 +1,31 @@
-
 import React from 'react';
 import { ArrowRight, Sparkles, Wand2, Heart } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface BrandHomeProps {
   onStart: () => void;
 }
 
 export const BrandHome: React.FC<BrandHomeProps> = ({ onStart }) => {
+  const { t } = useLanguage();
   return (
     <div className="flex flex-col md:flex-row items-center gap-12 animate-in fade-in zoom-in-95 duration-700">
       <div className="flex-1 space-y-8 text-center md:text-left">
         <div className="inline-flex items-center gap-2 px-4 py-1 bg-pink-100 rounded-full border-2 border-slate-800 text-sm font-bold text-pink-600 animate-bounce">
-          <Sparkles size={16} /> Beta Launching Now
+          <Sparkles size={16} /> {t('home.beta')}
         </div>
 
         <div className="relative inline-block">
           <h1 className="text-6xl md:text-8xl font-black text-slate-800 leading-[0.9] relative z-10">
-            Dream.<br />
-            Connect.<br />
-            <span className="text-pink-500">Delight.</span>
+            {t('home.heroTitle.dream')}<br />
+            {t('home.heroTitle.connect')}<br />
+            <span className="text-pink-500">{t('home.heroTitle.delight')}</span>
           </h1>
           <div className="absolute -bottom-2 left-0 w-full h-4 bg-yellow-200 -z-10 rounded-full opacity-60"></div>
         </div>
 
         <p className="text-xl text-slate-600 max-w-md font-medium leading-relaxed">
-          The world's first single-match experience. We find <span className="font-bold text-slate-800 italic">The One</span> so you can delete the apps forever.
+          {t('home.heroSubtitle')}
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
@@ -32,7 +33,7 @@ export const BrandHome: React.FC<BrandHomeProps> = ({ onStart }) => {
             onClick={onStart}
             className="px-10 py-5 bg-yellow-300 sketch-button rounded-2xl text-2xl font-black text-slate-800 flex items-center justify-center gap-3 group"
           >
-            FIND MY ONE
+            {t('home.cta')}
             <ArrowRight className="group-hover:translate-x-2 transition-transform" />
           </button>
         </div>

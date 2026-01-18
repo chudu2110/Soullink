@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from './src/contexts/LanguageContext';
 import { AppStep, UserState, MatchProfile } from './types';
 import { BrandHome } from './src/pages/BrandHome';
 import { BrandAbout } from './src/pages/BrandAbout';
@@ -9,10 +10,12 @@ import { AuthScreen } from './src/pages/AuthScreen';
 import { QuizScreen } from './src/pages/QuizScreen';
 import { MatchingLoader } from './src/pages/MatchingLoader';
 import { MatchResult } from './src/pages/MatchResult';
+import { TarotScreen } from './src/pages/TarotScreen';
 
 import { Heart, Menu } from 'lucide-react';
 
 const App: React.FC = () => {
+  const { t, language, setLanguage } = useLanguage();
   const [step, setStep] = useState<AppStep>(AppStep.HOME);
   const [user, setUser] = useState<UserState>({
     name: '',
@@ -31,13 +34,15 @@ const App: React.FC = () => {
     }
   }, []);
 
-  const handleLogin = (name: string) => {
-    setUser(prev => ({ ...prev, name }));
+  const handleLogin = () => {
+    // Name will be collected in the quiz (Question ID 1)
     setStep(AppStep.QUIZ);
   };
 
-  const handleQuizComplete = async (answers: Record<number, string>) => {
-    setUser(prev => ({ ...prev, quizAnswers: answers }));
+  const handleQuizComplete = async (answers: Record<number, string | string[]>) => {
+    // Extract name from Question ID 1
+    const name = answers[1] as string || 'Anonymous';
+    setUser(prev => ({ ...prev, name, quizAnswers: answers }));
     setStep(AppStep.MATCHING);
 
     try {
@@ -111,16 +116,23 @@ const App: React.FC = () => {
         </div>
 
         <nav className="hidden md:flex items-center gap-4">
-          <NavItem label="Home" target={AppStep.HOME} />
-          <NavItem label="About" target={AppStep.ABOUT} />
-          <NavItem label="How it works" target={AppStep.HOW_TO} />
-          <NavItem label="Advice" target={AppStep.ADVICE} />
+          <NavItem label={t('nav.home')} target={AppStep.HOME} />
+          <NavItem label={t('nav.about')} target={AppStep.ABOUT} />
+          <NavItem label={t('nav.howTo')} target={AppStep.HOW_TO} />
+          <NavItem label={t('nav.advice')} target={AppStep.ADVICE} />
+
+          <button
+            onClick={() => setLanguage(language === 'en' ? 'vi' : 'en')}
+            className="px-4 py-2 font-bold transition-all text-slate-600 hover:text-slate-900"
+          >
+            {language === 'en' ? 'ENG' : 'VIE'}
+          </button>
           {!isLocked && (
             <button
               onClick={() => setStep(AppStep.AUTH)}
               className="ml-4 px-6 py-2 bg-yellow-300 sketch-button rounded-xl font-bold uppercase text-sm"
             >
-              Start Matching
+              {t('nav.startMatching')}
             </button>
           )}
         </nav>
@@ -135,8 +147,9 @@ const App: React.FC = () => {
           {step === AppStep.HOME && <BrandHome onStart={() => setStep(AppStep.AUTH)} />}
           {step === AppStep.ABOUT && <BrandAbout onBack={() => setStep(AppStep.HOME)} />}
           {step === AppStep.HOW_TO && <BrandHowTo onStart={() => setStep(AppStep.AUTH)} />}
-          {step === AppStep.ADVICE && <BrandAdvice onBack={() => setStep(AppStep.HOME)} />}
-          {step === AppStep.AUTH && <AuthScreen onComplete={handleLogin} />}
+          {step === AppStep.ADVICE && <BrandAdvice onBack={() => setStep(AppStep.HOME)} onTarotSelect={() => setStep(AppStep.TAROT)} />}
+          {step === AppStep.TAROT && <TarotScreen onBack={() => setStep(AppStep.ADVICE)} />}
+          {step === AppStep.AUTH && <AuthScreen onStart={handleLogin} />}
           {step === AppStep.QUIZ && <QuizScreen onComplete={handleQuizComplete} />}
           {step === AppStep.MATCHING && <MatchingLoader />}
           {step === AppStep.MATCHED && user.match && <MatchResult profile={user.match} />}
@@ -144,7 +157,7 @@ const App: React.FC = () => {
       </main>
 
       <footer className="w-full p-8 text-center text-slate-400 text-sm font-medium">
-        {step === AppStep.MATCHED ? "You've reached your final destination." : "© 2025 SoulLink - Made with Love & Logic"}
+        {step === AppStep.MATCHED ? t('app.footerMatch') : t('app.footerCopyright')}
       </footer>
     </div>
   );
